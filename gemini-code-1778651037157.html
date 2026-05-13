@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro YT Thumbnail Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f0f0f; color: white; }
+        .yt-red { background-color: #ff0000; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-12 px-4">
+
+    <div class="max-w-4xl w-full text-center">
+        <h1 class="text-4xl font-bold mb-2">YouTube <span class="text-red-600">Thumbnail</span> Downloader</h1>
+        <p class="text-gray-400 mb-8">Download high-quality thumbnails in one click.</p>
+
+        <!-- Input Section -->
+        <div class="flex flex-col md:flex-row gap-2 mb-12">
+            <input type="text" id="videoUrl" placeholder="Paste YouTube URL here (e.g., https://www.youtube.com/watch?v=...)" 
+                class="flex-1 p-4 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:border-red-500 transition">
+            <button onclick="getThumbnails()" class="yt-red hover:bg-red-700 px-8 py-4 rounded-lg font-bold transition">
+                Get Thumbnails
+            </button>
+        </div>
+
+        <!-- Result Section -->
+        <div id="resultArea" class="hidden grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Cards will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        function extractVideoID(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return (match && match[1]) ? match[1] : null;
+        }
+
+        function getThumbnails() {
+            const url = document.getElementById('videoUrl').value;
+            const id = extractVideoID(url);
+            const resultArea = document.getElementById('resultArea');
+
+            if (!id) {
+                alert("Please enter a valid YouTube URL");
+                return;
+            }
+
+            const qualities = [
+                { name: 'HD Quality (1280x720)', slug: 'maxresdefault' },
+                { name: 'Standard (640x480)', slug: 'sddefault' },
+                { name: 'High (480x360)', slug: 'hqdefault' }
+            ];
+
+            resultArea.innerHTML = '';
+            resultArea.classList.remove('hidden');
+
+            qualities.forEach(q => {
+                const card = `
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
+                        <img src="https://img.youtube.com/vi/${id}/${q.slug}.jpg" alt="${q.name}" class="w-full h-auto">
+                        <div class="p-4 flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-300">${q.name}</span>
+                            <a href="/download?videoId=${id}&quality=${q.slug}" 
+                               class="bg-white text-black px-4 py-2 rounded-md text-sm font-bold hover:bg-gray-200 transition">
+                               Download
+                            </a>
+                        </div>
+                    </div>
+                `;
+                resultArea.innerHTML += card;
+            });
+        }
+    </script>
+</body>
+</html>
